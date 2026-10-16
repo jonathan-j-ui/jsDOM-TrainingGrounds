@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+        .userlist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap:25px;
+        }
+
+        .user {
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border:1px #777 solid;
+        }
+        .user img{
+            width: 100%;
+        }
+
+        .user div.header {
+            font-size: 22px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px 30px;
+        }
+    </style>
+    <script type="text/javascript">
+
+        function getUserFullName(user){
+            return user.name.first + " " + user.name.last;
+        }
+
+        function createUserHeading(user){
+            const userName = document.createElement("div");
+            userName.classList.add("header");
+            userName.textContent = getUserFullName(user);
+            return userName;
+        }
+
+        function createUserImg(user){
+            const userIMG = document.createElement("img");
+            userIMG.src = user.picture.large;
+            return userIMG;
+        }
+        
+        let userlistPromise = null;
+
+        async function getUsers() {
+            if (!userlistPromise) {
+                userlistPromise = fetch("https://randomuser.me/api/?results=30")
+                    .then((response) => response.json());
+            }
+            return userlistPromise;
+        }
+
+        async function createUserList(element, userlist){
+            const userlistData = userlist;
+
+            const userListEl = document.createElement("section");
+            userListEl.classList.add("userlist");
+
+            for (let i = 0; i < userlistData.results.length; i++){
+                const user = userlistData.results[i];
+
+                const newUserEl = document.createElement("div");
+                newUserEl.classList.add("user");
+                
+                newUserEl.appendChild(createUserImg(user));
+                newUserEl.appendChild(createUserHeading(user));
+
+                userListEl.appendChild(newUserEl);
+            }
+
+            element.appendChild(userListEl);
+        }
+
+
+
+        document.addEventListener("DOMContentLoaded", async (event) => {     
+            console.log("DOM is fully loaded");
+            const destEl = document.querySelector("main");
+            const userlistData = await getUsers();
+            await createUserList(destEl, userlistData);
+            
+            const searchNameField = document.querySelector("#searchNameField");
+            const searchNameButton = document.querySelector("#searchNameButton");
+            searchNameButton.onclick = (event) => {
+                console.log(searchNameField.value);
+                userlist = userlistData.results;
+                console.log(userlist);
+                textInput = searchNameField.value;
+
+                let filterUserlistData = {
+                    results: []
+                };
+
+                for(let i = 0; i < userlist.length; i++){
+                    const user = userlist[i];
+                    fullName = getUserFullName(user);
+                    
+                    if (fullName.toLowerCase().startsWith(textInput.toLowerCase())){
+                        filterUserlistData.results.push(user);
+                    }
+                }
+
+                console.log(filterUserlistData);
+            };
+        });
+    </script>
+</head>
+<body>
+    <main>
+        <input type="text" id="searchNameField" /><button id="searchNameButton">Search</button>
+    </main>
+</body>
+</html>
