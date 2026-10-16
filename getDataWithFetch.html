@@ -62,6 +62,26 @@
             return userlistPromise;
         }
 
+        function createUserCard(user) {
+            const newUserEl = document.createElement("div");
+            newUserEl.classList.add("user");
+            newUserEl.appendChild(createUserImg(user));
+            newUserEl.appendChild(createUserHeading(user));
+            return newUserEl;
+        }
+
+        function updateUserlist(element, userlist){
+            const userlistData = userlist;
+
+            element.innerHTML = "";
+
+            for (let i = 0; i < userlistData.results.length; i++){
+                const user = userlistData.results[i];
+
+                element.appendChild(createUserCard(user));
+            }
+        }
+
         async function createUserList(element, userlist){
             const userlistData = userlist;
 
@@ -71,13 +91,7 @@
             for (let i = 0; i < userlistData.results.length; i++){
                 const user = userlistData.results[i];
 
-                const newUserEl = document.createElement("div");
-                newUserEl.classList.add("user");
-                
-                newUserEl.appendChild(createUserImg(user));
-                newUserEl.appendChild(createUserHeading(user));
-
-                userListEl.appendChild(newUserEl);
+                userListEl.appendChild(createUserCard(user));
             }
 
             element.appendChild(userListEl);
@@ -112,7 +126,10 @@
                     }
                 }
 
+                // remove current userlist and update with new
+                
                 console.log(filterUserlistData);
+                updateUserlist(document.querySelector("section.userlist"), filterUserlistData);
             };
         });
     </script>
